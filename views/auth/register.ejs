@@ -1,0 +1,32 @@
+<div class="auth-container">
+    <h1 class="neon-text">Регистрация</h1>
+    
+    <% if (error) { %>
+        <div class="error-message">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form action="/auth/register" method="POST" class="auth-form rgb-border" autocomplete="off">
+        <div class="form-group">
+            <label for="username">Имя пользователя:</label>
+            <input type="text" id="username" name="username" required minlength="3" maxlength="50">
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required maxlength="100">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required minlength="6">
+        </div>
+        
+        <button type="submit" class="submit-btn">Зарегистрироваться</button>
+        
+        <p class="auth-links">
+            Уже есть аккаунт? <a href="/auth/login">Войти</a>
+        </p>
+    </form>
+</div> 

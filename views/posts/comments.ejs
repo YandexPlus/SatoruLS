@@ -1,0 +1,30 @@
+<div class="comments-section">
+    <h3>Комментарии</h3>
+    
+    <% if (user) { %>
+        <form action="/comments/create" method="POST" class="comment-form">
+            <input type="hidden" name="post_id" value="<%= post.id %>">
+            <div class="form-group">
+                <textarea name="content" class="form-control" rows="3" required placeholder="Напишите комментарий..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    <% } %>
+
+    <div class="comments-list">
+        <% comments.forEach(comment => { %>
+            <div class="comment" data-comment-id="<%= comment.id %>">
+                <div class="comment-header">
+                    <span class="comment-author"><%= comment.username %></span>
+                    <span class="comment-date"><%= new Date(comment.created_at).toLocaleString() %></span>
+                    <% if (user && user.id === comment.user_id) { %>
+                        <button class="btn btn-sm btn-danger delete-comment">Удалить</button>
+                    <% } %>
+                </div>
+                <div class="comment-content">
+                    <%= comment.content %>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div> 

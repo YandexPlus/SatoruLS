@@ -1,0 +1,107 @@
+<div class="comments-page">
+    <h1>Все комментарии</h1>
+    
+    <% if (user) { %>
+        <div class="create-comment-section">
+            <h3>Добавить комментарий</h3>
+            <form action="/comments/create" method="POST" class="comment-form" id="commentForm">
+                <div class="form-group">
+                    <select name="post_id" class="form-select" required>
+                        <option value="" disabled selected>Выберите пост</option>
+                        <% posts.forEach(post => { %>
+                            <option value="<%= post.id %>"><%= post.title %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea 
+                        name="content" 
+                        class="form-control" 
+                        rows="3" 
+                        required 
+                        placeholder="Напишите комментарий..."
+                    ></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Отправить
+                </button>
+            </form>
+        </div>
+    <% } %>
+
+    <div class="comments-container">
+        <% comments.forEach(comment => { %>
+            <div class="comment-card">
+                <div class="comment-header">
+                    <div class="comment-info">
+                        <span class="comment-author"><%= comment.username %></span>
+                        <span class="comment-date"><%= new Date(comment.created_at).toLocaleString() %></span>
+                    </div>
+                    <a href="/posts/<%= comment.post_id %>" class="post-link">
+                        Перейти к посту
+                    </a>
+                </div>
+                <div class="comment-content">
+                    <%= comment.content %>
+                </div>
+                <% if (user && user.id === comment.user_id) { %>
+                    <div class="comment-actions">
+                        <button class="delete-btn" data-comment-id="<%= comment.id %>">
+                            <i class="fas fa-trash"></i> Удалить
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', async () => {
+        if (confirm('Вы уверены, что хотите удалить этот комментарий?')) {
+            const commentId = button.dataset.commentId;
+            try {
+                const response = await fetch(`/comments/${commentId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    button.closest('.comment-card').remove();
+                }
+            } catch (error) {
+                console.error('Ошибка при удалении комментария:', error);
+            }
+        }
+    });
+});
+
+document.getElementById('commentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    
+    try {
+        const response = await fetch('/comments/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                post_id: formData.get('post_id'),
+                content: formData.get('content')
+            })
+        });
+
+        if (response.ok) {
+            // Перезагружаем страницу для отображения нового комментария
+            window.location.reload();
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Произошла ошибка при создании комментария');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при отправке комментария');
+    }
+});
+</script> 

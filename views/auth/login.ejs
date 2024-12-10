@@ -1,0 +1,79 @@
+<div class="auth-container">
+    <h1>Вход</h1>
+    
+    <div class="switch-container">
+        <div class="switch-wrapper">
+            <input type="radio" name="loginSwitch" id="emailSwitch" checked>
+            <input type="radio" name="loginSwitch" id="usernameSwitch">
+            <label for="emailSwitch" class="switch-label">По почте</label>
+            <label for="usernameSwitch" class="switch-label">По нику</label>
+            <div class="switch-selection"></div>
+        </div>
+    </div>
+
+    <form action="/auth/login" method="POST" class="auth-form">
+        <input type="hidden" name="loginType" id="loginType" value="email">
+        
+        <div class="form-group slide-container">
+            <div class="slide-wrapper">
+                <div id="emailField" class="slide-item">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div id="usernameField" class="slide-item">
+                    <label for="username">Никнейм:</label>
+                    <input type="text" id="username" name="username" class="form-control">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="submit-btn">Войти</button>
+    </form>
+
+    <p class="auth-links">
+        Нет аккаунта? <a href="/auth/register">Зарегистрироваться</a>
+    </p>
+</div>
+
+<script>
+document.querySelectorAll('input[name="loginSwitch"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+        const loginType = e.target.id === 'emailSwitch' ? 'email' : 'username';
+        document.getElementById('loginType').value = loginType;
+        
+        const slideWrapper = document.querySelector('.slide-wrapper');
+        if (loginType === 'email') {
+            slideWrapper.style.transform = 'translateX(0)';
+            document.getElementById('email').required = true;
+            document.getElementById('username').required = false;
+        } else {
+            slideWrapper.style.transform = 'translateX(-50%)';
+            document.getElementById('email').required = false;
+            document.getElementById('username').required = true;
+        }
+    });
+});
+
+// Добавляем эффект пульсации при клике
+document.querySelectorAll('.switch-label').forEach(label => {
+    label.addEventListener('click', function(e) {
+        const ripple = document.createElement('div');
+        ripple.classList.add('ripple');
+        this.appendChild(ripple);
+        
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        setTimeout(() => ripple.remove(), 600);
+    });
+});
+</script> 
