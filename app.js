@@ -21,7 +21,7 @@ app.use(express.json());
 
 // Настройка сессий
 app.use(session({
-    secret: 'your-secret-key',
+    secret: '4PE68-G92GM-2020',
     resave: false,
     saveUninitialized: true
 }));
