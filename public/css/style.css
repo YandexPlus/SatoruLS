@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Глобальные стили для блокировки выделения */
 body, 
 body * {
@@ -145,4 +146,153 @@ img {
 .interactive-element:hover {
     transform: translateY(-2px);
     animation: rgbBorder 5s linear infinite;
+=======
+/* Глобальные стили для блокировки выделения */
+body, 
+body * {
+    -webkit-user-select: none;    /* Safari */
+    -moz-user-select: none;       /* Firefox */
+    -ms-user-select: none;        /* IE10+/Edge */
+    user-select: none;            /* Standard */
+    -webkit-user-drag: none;      /* Safari */
+    -webkit-touch-callout: none;  /* iOS Safari */
+}
+
+/* Разрешаем выделение только в полях ввода и текстовых областях */
+input, 
+textarea {
+    -webkit-user-select: text;    /* Safari */
+    -moz-user-select: text;       /* Firefox */
+    -ms-user-select: text;        /* IE10+/Edge */
+    user-select: text;            /* Standard */
+    -webkit-user-drag: auto;      /* Safari */
+    -webkit-touch-callout: default;  /* iOS Safari */
+}
+
+/* Стили для навигационной панели */
+.navbar, 
+.navbar * {
+    cursor: default;
+}
+
+.navbar a, 
+.navbar button {
+    cursor: pointer;
+}
+
+/* Запрет перетаскивания изображений */
+img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+} 
+
+/* RGB анимация для обводки */
+@keyframes rgbBorder {
+    0% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+    33% { border-color: #00ff00; box-shadow: 0 0 10px #00ff00; }
+    66% { border-color: #0000ff; box-shadow: 0 0 10px #0000ff; }
+    100% { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+}
+
+@keyframes rgbGlow {
+    0% { text-shadow: 0 0 10px #ff0000; }
+    33% { text-shadow: 0 0 10px #00ff00; }
+    66% { text-shadow: 0 0 10px #0000ff; }
+    100% { text-shadow: 0 0 10px #ff0000; }
+}
+
+/* Применяем RGB-эффекты к элементам */
+.navbar {
+    border: 1px solid;
+    animation: rgbBorder 5s linear infinite;
+}
+
+.post-card {
+    border: 1px solid;
+    animation: rgbBorder 5s linear infinite;
+}
+
+.welcome-title {
+    animation: rgbGlow 5s linear infinite;
+}
+
+.auth-card {
+    border: 1px solid;
+    animation: rgbBorder 5s linear infinite;
+}
+
+/* Эффект для кнопок */
+.submit-btn, 
+.auth-btn,
+.navbar a,
+.navbar button {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.submit-btn::before,
+.auth-btn::before,
+.navbar a::before,
+.navbar button::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ff0000);
+    background-size: 400% 400%;
+    z-index: -1;
+    animation: rgbMove 5s linear infinite;
+    border-radius: inherit;
+}
+
+@keyframes rgbMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Эффект для карточек постов */
+.post-card {
+    position: relative;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1;
+}
+
+.post-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ff0000);
+    background-size: 400% 400%;
+    z-index: -1;
+    animation: rgbMove 5s linear infinite;
+    border-radius: inherit;
+    filter: blur(5px);
+}
+
+/* Эффект для форм */
+.form-input:focus {
+    border: 1px solid;
+    animation: rgbBorder 5s linear infinite;
+}
+
+/* Дополнительные эффекты для интерактивных элементов */
+.interactive-element {
+    transition: all 0.3s ease;
+}
+
+.interactive-element:hover {
+    transform: translateY(-2px);
+    animation: rgbBorder 5s linear infinite;
+>>>>>>> cb358ef (Initial commit)
 }

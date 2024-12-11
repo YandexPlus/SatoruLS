@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 node_modules/
 .env
 public/uploads/*
+=======
+node_modules/
+.env
+public/uploads/*
+>>>>>>> cb358ef (Initial commit)
 !public/uploads/.gitkeep 

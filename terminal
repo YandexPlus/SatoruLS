@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 mkdir SatoruLS
 cd SatoruLS
 npm init -y 
@@ -15,4 +16,23 @@ mkdir views/profile
 mkdir routes
 mkdir config
 npm install
+=======
+mkdir SatoruLS
+cd SatoruLS
+npm init -y 
+npm install express express-session mysql2 ejs bcrypt dotenv multer express-ejs-layouts
+mkdir public
+mkdir public/css
+mkdir public/js
+mkdir public/uploads
+mkdir public/uploads/avatars
+mkdir views
+mkdir views/layouts
+mkdir views/admin
+mkdir views/posts
+mkdir views/profile
+mkdir routes
+mkdir config
+npm install
+>>>>>>> cb358ef (Initial commit)
 npm run dev
