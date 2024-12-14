@@ -17,55 +17,104 @@
     <% if (typeof style !== 'undefined') { %>
         <%- style %>
     <% } %>
-</head>
-<body>
     <style>
+    :root {
+        --primary-color: #00d4ff;
+        --secondary-color: #ff007a;
+        --nav-glow: rgba(0, 212, 255, 0.7);
+    }
+
+    body {
+        background: radial-gradient(circle at center, #0f0f0f, #030303);
+        color: #fff;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .navbar {
+        background: rgba(15, 15, 20, 0.95) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 6px 0; /* Уменьшаем высоту панели */
+        box-shadow: 0 5px 15px var(--nav-glow);
+        animation: nav-pulse 4s infinite alternate;
+    }
+
+    @keyframes nav-pulse {
+        0% {
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+        100% {
+            box-shadow: 0 0 25px var(--secondary-color);
+        }
+    }
+
+    .navbar-brand {
+        color: #fff !important;
+        font-size: 1.4em;
+        font-weight: bold;
+        text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--secondary-color);
+        transition: transform 0.3s ease;
+    }
+
+    .navbar-brand:hover {
+        transform: scale(1.1) rotate(2deg);
+        text-shadow: 0 0 15px var(--secondary-color), 0 0 30px var(--primary-color);
+    }
+
+    .nav-link {
+        color: #fff !important;
+        padding: 6px 15px !important; 
+        margin: 4px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 500;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(5px);
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px var(--nav-glow);
+        transform: scale(1.05) translateY(-2px);
+    }
+
+    .nav-link i {
+        margin-right: 8px;
+        font-size: 1.2em;
+        color: var(--primary-color);
+        animation: rotate-glow 6s infinite linear;
+    }
+
+    @keyframes rotate-glow {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Медиазапрос для экранов с разрешением 1024px и выше */
+    @media (min-width: 1024px) {
         .navbar {
-            background: rgba(15, 15, 20, 0.95) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 5px 0;
+            padding: 3px 0; /* Уменьшаем высоту панели только для ПК */
         }
 
         .navbar-brand {
-            color: #fff !important;
-            font-size: 1.5em;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
-        .nav-item {
-            margin: 0 3px;
+            font-size: 1.2em; /* Уменьшаем размер шрифта для ПК */
         }
 
         .nav-link {
-            color: #fff !important;
-            padding: 6px 15px !important;
-            border-radius: 20px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(5px);
-            font-size: 0.9em;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 10px; /* Уменьшаем отступы для уменьшения высоты */
+            font-size: 0.8em; /* Уменьшаем размер шрифта */
         }
-
-        .nav-link:hover {
-            transform: translateY(-1px);
-            background: rgba(255, 255, 255, 0.15) !important;
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .nav-link i {
-            margin-right: 8px;
-            font-size: 1em;
-            opacity: 0.8;
-        }
-
-        .nav-link:active {
-            transform: translateY(1px);
-            background: rgba(255, 255, 255, 0.2) !important;
-        }
-    </style>
-
+    }
+</style>
+</head>
+<body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">SatoruLS</a>
@@ -80,11 +129,6 @@
                                 <i class="fas fa-plus-circle"></i>Создать пост
                             </a>
                         </li>
-                        <!-- <li class="nav-item">
-                            <a class="nav-link" href="/profile">
-                                <i class="fas fa-user"></i>Профиль
-                            </a>
-                        </li> -->
                         <li class="nav-item">
                             <a class="nav-link" href="/comments">
                                 <i class="fas fa-comments"></i>Комментарии
@@ -130,4 +174,4 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> 
+</html>
