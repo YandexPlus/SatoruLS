@@ -5,6 +5,7 @@ const path = require('path');
 const { db } = require('./config/initDB');
 const { requireAuth } = require('./middleware/auth');
 const { requireAdmin } = require('./middleware/adminAuth');
+const { exec } = require('child_process');
 
 const app = express();
 
@@ -54,10 +55,31 @@ app.use((req, res, next) => {
     next();
 });
 
+// Обслуживание статических файлов из папки scripts
+app.use('/scripts', express.static(path.join(__dirname, 'scripts')));
+
 app.use('/posts', postsRoutes);
 app.use('/comments', commentsRoutes);
 app.use('/profile', requireAuth);
 app.use('/admin', adminRoutes);
+
+
+// Запуск скрипта reorder-all-ids.js
+app.post('/admin/run-reorder-script', (req, res) => {
+    // Путь к скрипту теперь указывает на папку scripts
+    exec('node scripts/reorder-all-ids.js', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Ошибка выполнения скрипта: ${error.message}`);
+            return res.status(500).send('Ошибка при выполнении скрипта');
+        }
+        if (stderr) {
+            console.error(`stderr: ${stderr}`);
+            return res.status(500).send('Ошибка при выполнении скрипта');
+        }
+        console.log(`stdout: ${stdout}`);
+        res.send('Скрипт выполнен успешно');
+    });
+});
 
 // Главная страница
 app.get('/', async (req, res) => {
@@ -94,8 +116,9 @@ app.get('/', async (req, res) => {
     }
 });
 
+
 // Запуск сервера
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
     console.log(`Сервер запущен на порту ${PORT}`);
-});
+}); 
