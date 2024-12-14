@@ -28,6 +28,7 @@
         background: radial-gradient(circle at center, #0f0f0f, #030303);
         color: #fff;
         font-family: 'Roboto', sans-serif;
+        padding-top: 60px; /* Отступ сверху для основного контента */
     }
 
     .navbar {
@@ -36,6 +37,11 @@
         padding: 6px 0; /* Уменьшаем высоту панели */
         box-shadow: 0 5px 15px var(--nav-glow);
         animation: nav-pulse 4s infinite alternate;
+        position: fixed; /* Фиксируем панель сверху */
+        top: 0;
+        left: 0;
+        width: 100%; /* Расширяем на всю ширину */
+        z-index: 1000; /* Обеспечиваем, чтобы панель была поверх других элементов */
     }
 
     @keyframes nav-pulse {
