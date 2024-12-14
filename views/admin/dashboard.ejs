@@ -1,3 +1,29 @@
+<style>
+    .action-btn {
+        background-color: #388E3C; /* Темнее зеленый оттенок для кнопки */
+        color: #fff; /* Белый текст */
+        font-size: 14px; /* Уменьшенный размер шрифта */
+        padding: 10px 20px; /* Отступы для более комфортного клика */
+        border: none;
+        border-radius: 8px; /* Плавные углы */
+        cursor: pointer;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Плавные анимации для фона и тени */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Тень для глубины */
+    }
+
+    .action-btn:hover {
+        background-color: #2c6e2f; /* Более темный зеленый при наведении */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6); /* Более глубокая тень */
+    }
+
+    .action-btn:active {
+        background-color: #2c6e2f; /* При клике цвет остается темным */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Возвращаем исходную тень при клике */
+    }
+</style>
+
+
+
 <div class="admin-dashboard">
     <h1 class="dashboard-title">Панель администратора</h1>
 
@@ -31,6 +57,14 @@
                 <h3>Комментарии</h3>
                 <p class="stat-number"><%= stats.comments %></p>
             </div>
+        </div>
+    </div>
+
+    <!-- Запуск скрипта пересчета ID -->
+    <div class="admin-section">
+        <h2>Запуск скрипта пересчета ID</h2>
+        <div class="card">
+            <button class="action-btn" onclick="runReorderScript()">Пересчитать ID</button>
         </div>
     </div>
 
@@ -185,4 +219,22 @@ async function deleteComment(id) {
         }
     }
 }
-</script> 
+
+async function runReorderScript() {
+    if (confirm('Вы уверены, что хотите запустить скрипт пересчета ID?')) {
+        try {
+            const response = await fetch('/admin/run-reorder-script', {
+                method: 'POST'
+            });
+            if (response.ok) {
+                alert('Скрипт успешно выполнен');
+            } else {
+                alert('Произошла ошибка при выполнении скрипта');
+            }
+        } catch (error) {
+            console.error('Ошибка при запуске скрипта:', error);
+            alert('Произошла ошибка');
+        }
+    }
+}
+</script>
