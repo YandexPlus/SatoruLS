@@ -96,7 +96,7 @@ router.get('/', async (req, res) => {
         // Получаем список постов для выпадающего списка
         const posts = await db('posts')
             .select('id', 'title')
-            .orderBy('created_at', 'desc');
+            .orderBy('created_at', 'asc');
 
         res.render('comments/index', {
             comments: comments || [],
