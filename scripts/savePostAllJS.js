@@ -19,7 +19,7 @@ async function savePostsToJSON() {
         console.log('Подключение к базе данных установлено.');
 
         // Получение всех данных из таблицы
-        const res = await client.query('SELECT * FROM posts');
+        const res = await client.query('SELECT * FROM posts ORDER BY id ASC');
         const posts = res.rows;
 
         // Создание папки 'data' в корне проекта, если она не существует
