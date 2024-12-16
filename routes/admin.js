@@ -35,6 +35,9 @@ router.get('/', isAdmin, async (req, res) => {
             .select('comments.*', 'users.username', 'posts.title as post_title')
             .orderBy('comments.id', 'asc');  // Сортировка комментариев по ID по возрастанию
 
+        // Получаем список категорий
+        const categories = await db('categories').orderBy('id', 'asc');  // Сортировка категорий по ID по возрастанию
+
         res.render('admin/dashboard', {
             stats: {
                 users: usersCount.count,
@@ -44,6 +47,7 @@ router.get('/', isAdmin, async (req, res) => {
             users,
             posts,
             comments,
+            categories,  // Передаем категории в шаблон
             style: '<link rel="stylesheet" href="/css/admin.css">',
             script: '',
             layout: 'layouts/main'
@@ -56,6 +60,75 @@ router.get('/', isAdmin, async (req, res) => {
             script: '',
             layout: 'layouts/main'
         });
+    }
+});
+
+// Получить список категорий
+router.get('/categories', isAdmin, async (req, res) => {
+    try {
+        // Получаем статистику
+        const usersCount = await db('users').count('id as count').first();
+        const postsCount = await db('posts').count('id as count').first();
+        const commentsCount = await db('comments').count('id as count').first();
+
+        // Получаем список категорий
+        const categories = await db('categories').orderBy('id', 'asc');
+
+        res.render('admin/dashboard', {
+            stats: {
+                users: usersCount.count,
+                posts: postsCount.count,
+                comments: commentsCount.count
+            },
+            categories,  // передаем категории в шаблон
+            style: '<link rel="stylesheet" href="/css/admin.css">',
+            script: '',
+            layout: 'layouts/main'
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки категорий:', error);
+        res.status(500).render('error', { 
+            error: 'Ошибка загрузки категорий',
+            style: '',
+            script: '',
+            layout: 'layouts/main'
+        });
+    }
+});
+
+// Добавить новую категорию
+router.post('/categories', isAdmin, async (req, res) => {
+    const { name } = req.body;
+    try {
+        // Проверяем, существует ли уже категория с таким именем
+        const existingCategory = await db('categories').where('name', name).first();
+
+        if (existingCategory) {
+            return res.status(400).json({ success: false, error: 'Такая категория уже существует' });
+        }
+
+        // Вставляем новую категорию и получаем результат
+        const result = await db('categories').insert({ name }).returning('id');
+
+        // В случае успешной вставки, result будет массивом, содержащим ID
+        const id = result[0].id; // Здесь результат будет содержать объект с id
+
+        // Отправляем ID добавленной категории
+        res.json({ success: true, id });
+    } catch (error) {
+        console.error('Ошибка при добавлении категории:', error);
+        res.status(500).json({ success: false });
+    }
+});
+
+// Удалить категорию
+router.delete('/categories/:id', isAdmin, async (req, res) => {
+    try {
+        await db('categories').where('id', req.params.id).del();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Ошибка при удалении категории:', error);
+        res.status(500).json({ error: 'Ошибка при удалении категории' });
     }
 });
 
