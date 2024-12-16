@@ -143,6 +143,81 @@
             opacity: 0.5;
         }
     }
+
+    .category-container {
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .category-select {
+        width: 70%;
+        padding: 12px;
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    .category-options-container {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .category-options-container.show {
+        display: flex;
+    }
+
+    .new-category-input {
+        width: 70%;
+        padding: 12px;
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 14px;
+    }
+
+    .add-category-btn {
+        padding: 12px 24px;
+        background: linear-gradient(45deg, #4caf50, #45a049);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .add-category-btn:hover {
+        background: linear-gradient(45deg, #45a049, #4caf50);
+    }
+
+    .category-select-btn {
+        padding: 12px 24px;
+        background: linear-gradient(45deg, #4caf50, #45a049);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .category-select-btn:hover {
+        background: linear-gradient(45deg, #45a049, #4caf50);
+    }
 </style>
 
 <div class="create-post-container">
@@ -165,6 +240,29 @@
             <textarea id="content" name="content" required class="form-input" rows="10"></textarea>
         </div>
 
+        <!-- Первая карточка с категориями -->
+        <div class="category-container" onclick="toggleCategoryOptions()">
+            <span>Выберите категорию</span>
+            <button type="button" class="category-select-btn">+</button>
+        </div>
+
+        <div class="category-options-container" id="categoryOptionsContainer">
+            <select id="category" name="category_id" class="category-select">
+                <% if (categories && categories.length > 0) { %>
+                    <% categories.forEach(function(category) { %>
+                        <option value="<%= category.id %>"><%= category.name %></option>
+                    <% }); %>
+                <% } else { %>
+                    <option disabled>Нет доступных категорий</option>
+                <% } %>
+            </select>
+            <div class="form-group">
+                <label for="newCategory">Новая категория:</label>
+                <input type="text" id="newCategory" name="newCategory" class="new-category-input" placeholder="Введите название новой категории">
+                <button type="button" id="addCategoryBtn" class="add-category-btn">Добавить категорию</button>
+            </div>
+        </div>
+
         <div class="form-group">
             <label for="imageUrl">Введите URL изображения:</label>
             <input type="text" id="imageUrl" name="imageUrl" class="form-input" placeholder="https://example.com/image.jpg">
@@ -175,16 +273,16 @@
 </div>
 
 <script>
-    // Функция для проверки правильности URL
-    function isValidUrl(url) {
-        const regex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
-        return regex.test(url);
+    function toggleCategoryOptions() {
+        const container = document.getElementById('categoryOptionsContainer');
+        container.classList.toggle('show');
     }
 
     document.getElementById('createPostForm').addEventListener('submit', async (e) => {
         e.preventDefault(); // Предотвращаем стандартную отправку формы
 
         const imageUrl = document.getElementById('imageUrl').value;
+        const newCategory = document.getElementById('newCategory').value.trim();
 
         // Проверка URL перед отправкой
         if (imageUrl && !isValidUrl(imageUrl)) {
@@ -192,17 +290,46 @@
             return; // Прерываем выполнение, если URL неверный
         }
 
-        const formData = new FormData(e.target);
+        // Если введена новая категория, отправляем ее на сервер
+        let categoryId = document.getElementById('category').value;
+        if (newCategory) {
+            const response = await fetch('/categories/create', {
+                method: 'POST',
+                body: JSON.stringify({ name: newCategory }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
 
-        const response = await fetch('/posts/create', {
+            if (response.ok) {
+                const data = await response.json();
+                categoryId = data.id; // Присваиваем ID новой категории
+                alert('Новая категория успешно добавлена!');
+            } else {
+                alert('Ошибка при добавлении категории.');
+                return;
+            }
+        }
+
+        const formData = new FormData(e.target);
+        formData.set('category_id', categoryId); // Обновляем category_id
+
+        const submitResponse = await fetch('/posts/create', {
             method: 'POST',
             body: formData
         });
 
-        if (response.ok) {
+        if (submitResponse.ok) {
             window.location.href = '/'; // Редирект на главную страницу после успешного создания поста
         } else {
             alert('Ошибка при создании поста.');
+        }
+    });
+
+    document.getElementById('addCategoryBtn').addEventListener('click', () => {
+        const newCategory = document.getElementById('newCategory').value.trim();
+        if (newCategory) {
+            alert('Вы можете добавить новую категорию, которая будет автоматически добавлена при создании поста.');
         }
     });
 </script>
