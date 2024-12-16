@@ -110,114 +110,6 @@
         margin-bottom: 20px;
         font-size: 14px;
     }
-
-    .rgb-border {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .rgb-border::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(45deg, #4caf50, #2196f3, #ff9800);
-        border-radius: 8px;
-        z-index: -1;
-        animation: borderGlow 3s ease infinite;
-    }
-
-    @keyframes borderGlow {
-        0% {
-            filter: blur(5px);
-            opacity: 0.5;
-        }
-        50% {
-            filter: blur(7px);
-            opacity: 0.7;
-        }
-        100% {
-            filter: blur(5px);
-            opacity: 0.5;
-        }
-    }
-
-    .category-container {
-        display: flex;
-        gap: 10px;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .category-select {
-        width: 70%;
-        padding: 12px;
-        background-color: #1a1a1a;
-        border: 1px solid #333;
-        border-radius: 4px;
-        color: #fff;
-        font-size: 14px;
-    }
-
-    .category-options-container {
-        display: none;
-        flex-direction: column;
-        gap: 10px;
-        margin-top: 10px;
-    }
-
-    .category-options-container.show {
-        display: flex;
-    }
-
-    .new-category-input {
-        width: 70%;
-        padding: 12px;
-        background-color: #1a1a1a;
-        border: 1px solid #333;
-        border-radius: 4px;
-        color: #fff;
-        font-size: 14px;
-    }
-
-    .add-category-btn {
-        padding: 12px 24px;
-        background: linear-gradient(45deg, #4caf50, #45a049);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .add-category-btn:hover {
-        background: linear-gradient(45deg, #45a049, #4caf50);
-    }
-
-    .category-select-btn {
-        padding: 12px 24px;
-        background: linear-gradient(45deg, #4caf50, #45a049);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .category-select-btn:hover {
-        background: linear-gradient(45deg, #45a049, #4caf50);
-    }
 </style>
 
 <div class="create-post-container">
@@ -229,7 +121,7 @@
         </div>
     <% } %>
 
-    <form id="createPostForm" action="/posts/create" method="POST" class="post-form rgb-border" enctype="multipart/form-data">
+    <form id="createPostForm" action="/posts/create" method="POST" class="post-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="title">Заголовок:</label>
             <input type="text" id="title" name="title" required maxlength="255" class="form-input">
@@ -240,27 +132,18 @@
             <textarea id="content" name="content" required class="form-input" rows="10"></textarea>
         </div>
 
-        <!-- Первая карточка с категориями -->
-        <div class="category-container" onclick="toggleCategoryOptions()">
-            <span>Выберите категорию</span>
-            <button type="button" class="category-select-btn">+</button>
-        </div>
-
-        <div class="category-options-container" id="categoryOptionsContainer">
-            <select id="category" name="category_id" class="category-select">
+        <!-- Только выбор категории -->
+        <div class="form-group">
+            <label for="category">Категория:</label>
+            <select id="category" name="category_id" class="form-input">
                 <% if (categories && categories.length > 0) { %>
                     <% categories.forEach(function(category) { %>
                         <option value="<%= category.id %>"><%= category.name %></option>
                     <% }); %>
                 <% } else { %>
-                    <option disabled>Нет доступных категорий</option>
+                    <option value="">Без категории</option> <!-- Передается пустое значение -->
                 <% } %>
             </select>
-            <div class="form-group">
-                <label for="newCategory">Новая категория:</label>
-                <input type="text" id="newCategory" name="newCategory" class="new-category-input" placeholder="Введите название новой категории">
-                <button type="button" id="addCategoryBtn" class="add-category-btn">Добавить категорию</button>
-            </div>
         </div>
 
         <div class="form-group">
@@ -271,65 +154,3 @@
         <button type="submit" class="submit-btn">Опубликовать</button>
     </form>
 </div>
-
-<script>
-    function toggleCategoryOptions() {
-        const container = document.getElementById('categoryOptionsContainer');
-        container.classList.toggle('show');
-    }
-
-    document.getElementById('createPostForm').addEventListener('submit', async (e) => {
-        e.preventDefault(); // Предотвращаем стандартную отправку формы
-
-        const imageUrl = document.getElementById('imageUrl').value;
-        const newCategory = document.getElementById('newCategory').value.trim();
-
-        // Проверка URL перед отправкой
-        if (imageUrl && !isValidUrl(imageUrl)) {
-            alert('Введите правильный URL изображения.');
-            return; // Прерываем выполнение, если URL неверный
-        }
-
-        // Если введена новая категория, отправляем ее на сервер
-        let categoryId = document.getElementById('category').value;
-        if (newCategory) {
-            const response = await fetch('/categories/create', {
-                method: 'POST',
-                body: JSON.stringify({ name: newCategory }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                categoryId = data.id; // Присваиваем ID новой категории
-                alert('Новая категория успешно добавлена!');
-            } else {
-                alert('Ошибка при добавлении категории.');
-                return;
-            }
-        }
-
-        const formData = new FormData(e.target);
-        formData.set('category_id', categoryId); // Обновляем category_id
-
-        const submitResponse = await fetch('/posts/create', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (submitResponse.ok) {
-            window.location.href = '/'; // Редирект на главную страницу после успешного создания поста
-        } else {
-            alert('Ошибка при создании поста.');
-        }
-    });
-
-    document.getElementById('addCategoryBtn').addEventListener('click', () => {
-        const newCategory = document.getElementById('newCategory').value.trim();
-        if (newCategory) {
-            alert('Вы можете добавить новую категорию, которая будет автоматически добавлена при создании поста.');
-        }
-    });
-</script>
