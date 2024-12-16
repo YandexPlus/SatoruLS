@@ -8,7 +8,7 @@ const pool = require('../config/database').pool;
 // Настройка загрузки изображений
 const storage = multer.diskStorage({
     destination: './public/uploads/',
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     limits: { fileSize: 5000000 },
-    fileFilter: function(req, file, cb) {
+    fileFilter: function (req, file, cb) {
         checkFileType(file, cb);
     }
 }).single('image');
@@ -62,7 +62,8 @@ router.get('/create', isAuthenticated, async (req, res) => {
             error: 'Не удалось загрузить категории',
             style: '<link rel="stylesheet" href="/css/posts.css">',
             script: '',
-            user: req.session.user
+            user: req.session.user,
+            categories: [] // Если ошибка, категории могут быть пустыми
         });
     }
 });
@@ -71,27 +72,31 @@ router.get('/create', isAuthenticated, async (req, res) => {
 router.post('/create', isAuthenticated, upload, async (req, res) => {
     try {
         const { title, content, category_id } = req.body;
-        const image = req.file ? `/uploads/${req.file.filename}` : null;
+        const image = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl || null;
 
-        // Создаем пост через Knex, добавляем категорию
+        // Если категория не выбрана, устанавливаем `null`
+        const categoryId = category_id || null;
+
+        // Создаем пост через Knex
         const [postId] = await db('posts').insert({
             user_id: req.session.user.id,
             title,
             content,
             image,
-            category_id, // Добавляем ID категории
+            category_id: categoryId, // Поле может быть пустым
             created_at: db.fn.now()
         }).returning('id');
 
-        res.redirect('/');
+        res.redirect('/'); // Перенаправление на главную страницу
     } catch (error) {
         console.error('Ошибка при создании поста:', error);
+
         res.render('posts/create', {
-            error: 'Ошибка при создании поста',
+            error: 'Не удалось создать пост. Попробуйте позже.',
             style: '<link rel="stylesheet" href="/css/posts.css">',
             script: '',
-            layout: 'layouts/main',
-            user: req.session.user
+            user: req.session.user,
+            categories: [] // Если ошибка, категории могут быть пустыми
         });
     }
 });
@@ -105,7 +110,7 @@ router.get('/:id', async (req, res) => {
             .select('posts.*', 'users.username', 'categories.name as category_name') // Получаем категорию
             .where('posts.id', req.params.id)
             .first();
-        
+
         if (!post) {
             return res.status(404).render('error', {
                 error: 'Пост не найден',
@@ -115,7 +120,7 @@ router.get('/:id', async (req, res) => {
                 user: req.session.user || null
             });
         }
-        
+
         res.render('posts/show', {
             post,
             style: '',
@@ -139,19 +144,19 @@ router.get('/:id', async (req, res) => {
 router.delete('/:id', isAuthenticated, async (req, res) => {
     try {
         const postId = req.params.id;
-        
+
         // Проверяем, существует ли пост и принадлежит ли он пользователю
         const post = await db('posts')
-            .where({ 
+            .where({
                 id: postId,
-                user_id: req.session.user.id 
+                user_id: req.session.user.id
             })
             .first();
 
         if (!post) {
             return res.status(404).json({ error: 'Пост не найден или у вас нет прав на его удаление' });
         }
-        
+
         // Удаляем пост
         await db('posts').where('id', postId).del();
 
