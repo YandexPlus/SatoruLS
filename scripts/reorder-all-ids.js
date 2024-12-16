@@ -10,6 +10,7 @@ async function reorderAllIds() {
         await client.query('ALTER TABLE posts DISABLE TRIGGER ALL;');
         await client.query('ALTER TABLE comments DISABLE TRIGGER ALL;');
         await client.query('ALTER TABLE users DISABLE TRIGGER ALL;');
+        await client.query('ALTER TABLE categories DISABLE TRIGGER ALL;');
         // Убрали строку с user_roles, так как она вызывает ошибку
 
         // Пересчет ID для таблицы posts
@@ -54,10 +55,25 @@ async function reorderAllIds() {
         await client.query(`SELECT setval('users_id_seq', (SELECT MAX(id) FROM users), false);`);
         console.log('ID пользователей успешно пересчитаны');
 
+        // Пересчет ID для таблицы categories (сортировка по id)
+        await client.query(`
+            WITH numbered_categories AS (
+                SELECT id, ROW_NUMBER() OVER (ORDER BY id) as new_id
+                FROM categories
+            )
+            UPDATE categories
+            SET id = numbered_categories.new_id
+            FROM numbered_categories
+            WHERE categories.id = numbered_categories.id;
+        `);
+        await client.query(`SELECT setval('categories_id_seq', (SELECT MAX(id) FROM categories), false);`);
+        console.log('ID категорий успешно пересчитаны');
+
         // Включение внешних ключей обратно
         await client.query('ALTER TABLE posts ENABLE TRIGGER ALL;');
         await client.query('ALTER TABLE comments ENABLE TRIGGER ALL;');
         await client.query('ALTER TABLE users ENABLE TRIGGER ALL;');
+        await client.query('ALTER TABLE categories ENABLE TRIGGER ALL;');
         // Убрали строку с user_roles
 
         await client.query('COMMIT'); // Подтверждаем транзакцию
