@@ -1,4 +1,38 @@
 <style>
+
+    /* Стили для формы добавления категории в темной теме */
+    #addCategoryForm {
+        display: none;
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #444; /* Темный цвет для рамки */
+        border-radius: 8px;
+        background-color: #333; /* Темный фон */
+        color: #fff; /* Белый текст */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6); /* Тень с темным оттенком */
+        transition: all 0.3s ease-in-out;
+    }
+
+    /* Стили для поля ввода в темной теме */
+    #categoryName {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 10px;
+        border: 1px solid #555; /* Темная рамка */
+        border-radius: 8px;
+        font-size: 14px;
+        color: #fff; /* Белый текст */
+        background-color: #444; /* Темный фон для поля ввода */
+        outline: none;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    /* Стили для фокуса на поле ввода в темной теме */
+    #categoryName:focus {
+        border-color: #66bb6a; /* Светлый зеленый для фокуса */
+        box-shadow: 0 0 5px rgba(102, 187, 106, 0.5); /* Легкое свечение при фокусе */
+    }
+
     .action-btn {
         background-color: #388E3C; /* Темнее зеленый оттенок для кнопки */
         color: #fff; /* Белый текст */
@@ -172,6 +206,46 @@
             </table>
         </div>
     </div>
+
+    <!-- Управление категориями -->
+    <div class="admin-section">
+        <h2>Управление категориями</h2>
+        <div class="card">
+            <button class="action-btn" onclick="showAddCategoryForm()">Добавить категорию</button>
+        </div>
+
+        <!-- Форма добавления категории -->
+        <div id="addCategoryForm" style="display: none;">
+            <input type="text" id="categoryName" placeholder="Название новой категории" class="form-input">
+            <button class="action-btn" onclick="addCategory()">Добавить</button>
+        </div>
+
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="categoriesTableBody">
+                    <% categories.forEach(category => { %>
+                        <tr>
+                            <td><%= category.id %></td>
+                            <td><%= category.name %></td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteCategory(<%= category.id %>)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -220,6 +294,55 @@ async function deleteComment(id) {
     }
 }
 
+// Удаление категории
+async function deleteCategory(id) {
+    if (confirm('Вы уверены, что хотите удалить эту категорию?')) {
+        try {
+            const response = await fetch(`/admin/categories/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Ошибка при удалении категории:', error);
+        }
+    }
+}
+
+// Добавление категории
+async function addCategory() {
+    const name = document.getElementById('categoryName').value.trim();
+    if (!name) {
+        alert('Введите название категории');
+        return;
+    }
+    try {
+        const response = await fetch('/admin/categories', {
+            method: 'POST',
+            body: JSON.stringify({ name }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            // Перезагрузка страницы после успешного добавления
+            alert('Категория добавлена');
+            location.reload();
+        } else {
+            alert('Ошибка при добавлении категории');
+        }
+    } catch (error) {
+        console.error('Ошибка при добавлении категории:', error);
+    }
+}
+
+
+// Показать форму добавления категории
+function showAddCategoryForm() {
+    document.getElementById('addCategoryForm').style.display = 'block';
+}
+
 async function runReorderScript() {
     if (confirm('Вы уверены, что хотите запустить скрипт пересчета ID?')) {
         try {
@@ -237,4 +360,6 @@ async function runReorderScript() {
         }
     }
 }
+
+
 </script>
