@@ -43,26 +43,43 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
-router.get('/create', isAuthenticated, (req, res) => {
-    res.render('posts/create', {
-        error: null,
-        style: '<link rel="stylesheet" href="/css/posts.css">',
-        script: '',
-        user: req.session.user
-    });
+// Получение категорий для выбора при создании поста
+router.get('/create', isAuthenticated, async (req, res) => {
+    try {
+        // Получаем все категории из базы данных
+        const categories = await db('categories').select('id', 'name');
+
+        res.render('posts/create', {
+            error: null,
+            style: '<link rel="stylesheet" href="/css/posts.css">',
+            script: '',
+            user: req.session.user,
+            categories // Передаем категории в шаблон
+        });
+    } catch (error) {
+        console.error('Ошибка при загрузке категорий:', error);
+        res.render('posts/create', {
+            error: 'Не удалось загрузить категории',
+            style: '<link rel="stylesheet" href="/css/posts.css">',
+            script: '',
+            user: req.session.user
+        });
+    }
 });
 
+// Создание нового поста
 router.post('/create', isAuthenticated, upload, async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, category_id } = req.body;
         const image = req.file ? `/uploads/${req.file.filename}` : null;
 
-        // Создаем пост через Knex
+        // Создаем пост через Knex, добавляем категорию
         const [postId] = await db('posts').insert({
             user_id: req.session.user.id,
             title,
             content,
             image,
+            category_id, // Добавляем ID категории
             created_at: db.fn.now()
         }).returning('id');
 
@@ -79,12 +96,13 @@ router.post('/create', isAuthenticated, upload, async (req, res) => {
     }
 });
 
-
+// Просмотр поста
 router.get('/:id', async (req, res) => {
     try {
         const post = await db('posts')
             .join('users', 'posts.user_id', 'users.id')
-            .select('posts.*', 'users.username')
+            .leftJoin('categories', 'posts.category_id', 'categories.id') // Присоединяем категорию
+            .select('posts.*', 'users.username', 'categories.name as category_name') // Получаем категорию
             .where('posts.id', req.params.id)
             .first();
         
@@ -147,4 +165,4 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
     }
 });
 
-module.exports = router; 
+module.exports = router;
