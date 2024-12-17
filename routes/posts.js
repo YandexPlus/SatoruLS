@@ -68,37 +68,62 @@ router.get('/create', isAuthenticated, async (req, res) => {
     }
 });
 
-// Создание нового поста
-router.post('/create', isAuthenticated, upload, async (req, res) => {
-    try {
-        const { title, content, category_id } = req.body;
-        const image = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl || null;
+router.post('/create', isAuthenticated, (req, res) => {
+    upload(req, res, async (err) => {
+        if (err) {
+            return res.render('posts/create', {
+                error: 'Ошибка при загрузке изображения: ' + err.message,
+                style: '<link rel="stylesheet" href="/css/posts.css">',
+                script: '',
+                user: req.session.user,
+                categories: [] // Передаем категории, если есть ошибка
+            });
+        }
 
-        // Если категория не выбрана, устанавливаем `null`
-        const categoryId = category_id || null;
+        try {
+            const { title, content, category_id, imageUrls } = req.body;
 
-        // Создаем пост через Knex
-        const [postId] = await db('posts').insert({
-            user_id: req.session.user.id,
-            title,
-            content,
-            image,
-            category_id: categoryId, // Поле может быть пустым
-            created_at: db.fn.now()
-        }).returning('id');
+            // Проверка на тип imageUrls
+            let imageUrlsArray = [];
+            if (imageUrls) {
+                if (Array.isArray(imageUrls)) {
+                    // Если imageUrls уже массив (например, если форма отправила несколько полей с одинаковым именем)
+                    imageUrlsArray = imageUrls;
+                } else if (typeof imageUrls === 'string') {
+                    // Если imageUrls это строка (например, запятая разделяет URL)
+                    imageUrlsArray = imageUrls.split(',').map(url => url.trim());
+                }
+            }
 
-        res.redirect('/'); // Перенаправление на главную страницу
-    } catch (error) {
-        console.error('Ошибка при создании поста:', error);
+            // Если категории нет, устанавливаем null
+            const categoryId = category_id || null;
 
-        res.render('posts/create', {
-            error: 'Не удалось создать пост. Попробуйте позже.',
-            style: '<link rel="stylesheet" href="/css/posts.css">',
-            script: '',
-            user: req.session.user,
-            categories: [] // Если ошибка, категории могут быть пустыми
-        });
-    }
+            // Если imageUrlsArray пустой, передаем NULL
+            const images = imageUrlsArray.length > 0 ? imageUrlsArray : null;
+
+            // Создаем пост в базе данных
+            const [postId] = await db('posts').insert({
+                user_id: req.session.user.id,
+                title,
+                content,
+                images, // Массив URL изображений или NULL
+                category_id: categoryId,
+                created_at: db.fn.now()
+            }).returning('id');
+
+            res.redirect('/'); // Перенаправление на главную страницу
+
+        } catch (error) {
+            console.error('Ошибка при создании поста:', error);
+            res.render('posts/create', {
+                error: 'Не удалось создать пост. Попробуйте позже.',
+                style: '<link rel="stylesheet" href="/css/posts.css">',
+                script: '',
+                user: req.session.user,
+                categories: [] // Если ошибка, категории могут быть пустыми
+            });
+        }
+    });
 });
 
 // Просмотр поста
