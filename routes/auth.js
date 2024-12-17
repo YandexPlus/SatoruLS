@@ -28,7 +28,7 @@ router.get('/login', (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { email, username, password, loginType } = req.body;
-        
+
         // Ищем пользователя по email или username в зависимости от типа входа
         const user = await db('users')
             .where(loginType === 'email' ? { email } : { username })
@@ -81,15 +81,23 @@ router.get('/register', (req, res) => {
     });
 });
 
-// Обработка регистрации
 router.post('/register', async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, registerType } = req.body;
+
+        // Проверка обязательного поля в зависимости от типа регистрации
+        const userEmail = registerType === 'email' ? email : null;
+        const userUsername = registerType === 'username' ? username : null;
 
         // Проверяем, существует ли пользователь
         const existingUser = await db('users')
-            .where('email', email)
-            .orWhere('username', username)
+            .where(function () {
+                if (registerType === 'email') {
+                    this.where('email', email);
+                } else {
+                    this.where('username', username);
+                }
+            })
             .first();
 
         if (existingUser) {
@@ -107,8 +115,8 @@ router.post('/register', async (req, res) => {
 
         // Создаем нового пользователя
         const [userId] = await db('users').insert({
-            username,
-            email,
+            username: registerType === 'username' ? username : null,
+            email: registerType === 'email' ? email : null,
             password: hashedPassword,
             role: 'user',
             created_at: db.fn.now()
@@ -124,7 +132,6 @@ router.post('/register', async (req, res) => {
 
         // Перенаправляем на главную страницу после успешной регистрации
         res.redirect('/');
-
     } catch (error) {
         console.error('Ошибка при регистрации:', error);
         res.render('auth/register', { 
@@ -143,4 +150,4 @@ router.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
-module.exports = router; 
+module.exports = router;
