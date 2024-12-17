@@ -71,12 +71,6 @@
         line-height: 1.4;
     }
 
-    input[type="file"].form-input {
-        padding: 8px;
-        background-color: #1a1a1a;
-        cursor: pointer;
-    }
-
     .submit-btn {
         padding: 12px 24px;
         background: linear-gradient(45deg, #4caf50, #45a049);
@@ -110,6 +104,37 @@
         margin-bottom: 20px;
         font-size: 14px;
     }
+
+    .add-url-btn {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-align: center;
+    }
+
+    .add-url-btn:hover {
+        background-color: #45a049;
+    }
+
+    .image-url-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .image-url-group input {
+        padding: 12px;
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 14px;
+    }
 </style>
 
 <div class="create-post-container">
@@ -132,7 +157,6 @@
             <textarea id="content" name="content" required class="form-input" rows="10"></textarea>
         </div>
 
-        <!-- Только выбор категории -->
         <div class="form-group">
             <label for="category">Категория:</label>
             <select id="category" name="category_id" class="form-input">
@@ -141,16 +165,30 @@
                         <option value="<%= category.id %>"><%= category.name %></option>
                     <% }); %>
                 <% } else { %>
-                    <option value="">Без категории</option> <!-- Передается пустое значение -->
+                    <option value="">Без категории</option>
                 <% } %>
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="imageUrl">Введите URL изображения:</label>
-            <input type="text" id="imageUrl" name="imageUrl" class="form-input" placeholder="https://example.com/image.jpg">
+        <div class="form-group image-url-group" id="imageUrlGroup">
+            <label for="imageUrls">Введите URL изображения:</label>
+            <input type="text" id="imageUrls" name="imageUrls[]" class="form-input" placeholder="https://example.com/image1.jpg">
         </div>
+
+        <button type="button" class="add-url-btn" onclick="addImageUrlInput()">Добавить еще URL</button>
 
         <button type="submit" class="submit-btn">Опубликовать</button>
     </form>
 </div>
+
+<script>
+    function addImageUrlInput() {
+        const imageUrlGroup = document.getElementById('imageUrlGroup');
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.name = 'imageUrls[]';
+        newInput.classList.add('form-input');
+        newInput.placeholder = 'https://example.com/image2.jpg';
+        imageUrlGroup.appendChild(newInput);
+    }
+</script>
