@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post with Image Slider</title>
+    <style>
+        .post-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .post-full {
+            background: rgba(20, 20, 20, 0.95);
+            border-radius: 15px;
+            padding: 2px;
+            background: linear-gradient(135deg, #ff0066, #00ffff, #ff00ff, #ff0066);
+            background-size: 400% 400%;
+            animation: gradientMove 3s ease infinite;
+            box-shadow: 0 8px 32px rgba(255, 0, 255, 0.15);
+        }
+
+        .post-full-content {
+            background: rgba(15, 15, 20, 0.95);
+            border-radius: 13px;
+            padding: 40px;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .post-title {
+            font-size: 2.5em;
+            text-align: center;
+            background: linear-gradient(45deg, #ff0066, #ff00ff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+        }
+
+        /* Стили для слайдера */
+        .slider-container {
+            position: relative;
+            max-width: 100%;
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide {
+            min-width: 100%;
+            display: none;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide img {
+            width: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            pointer-events: none; /* Отключает взаимодействие */
+        }
+
+        /* Кнопки управления */
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            padding: 10px 15px;
+            font-size: 1.5em;
+            transition: background 0.3s ease;
+            z-index: 10;
+        }
+
+        .slider-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .slider-btn.prev {
+            left: 10px;
+        }
+
+        .slider-btn.next {
+            right: 10px;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+
+        .post-author i {
+            font-size: 1.2em;
+            color: #ff0066;
+            text-shadow: 0 0 10px rgba(255, 0, 102, 0.5);
+        }
+
+        .post-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9em;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .post-title {
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            color: #fff;
+            background: linear-gradient(45deg, #ff0066, #ff00ff, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 600px;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .post-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .post-image:hover img {
+            transform: scale(1.02);
+        }
+
+        .post-content {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            font-size: 1.1em;
+            margin: 40px 0;
+            padding: 0 20px;
+            text-align: justify;
+            white-space: pre-line; /* Сохраняет пробелы и разрывы строк */
+            text-indent: 0; /* Убирает отступ у первого абзаца */
+        }
+
+        .post-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: flex-end;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* Стили для категории */
+        .post-category {
+            background-color: #ff0066;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50% }
+            50% { background-position: 100% 50% }
+            100% { background-position: 0% 50% }
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <div class="post-full">
+            <div class="post-full-content">
+                <!-- Заголовок поста -->
+                <div class="post-header">
+                    <div class="post-author">
+                        <i class="fas fa-user-circle"></i>
+                        <span><%= post.username %></span>
+                    </div>
+                    <div class="post-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span><%= new Date(post.created_at).toLocaleDateString() %></span>
+                    </div>
+                </div>
+
+                <h1 class="post-title"><%= post.title %></h1>
+
+                <!-- Отображение категории поста -->
+                <% if (post.category) { %>
+                    <div class="post-category"><%= post.category %></div>
+                <% } %>
+
+                <!-- Слайдер изображений -->
+                <% if (post.images && post.images.length > 0) { %>
+                    <div class="slider-container">
+                        <button class="slider-btn prev" onclick="changeSlide(-1)">&#10094;</button>
+                        <div class="slider">
+                            <% post.images.forEach(function(imageUrl, index) { %>
+                                <div class="slide <%= index === 0 ? 'active' : '' %>">
+                                    <img src="<%= imageUrl %>" alt="Post image" draggable="false">
+                                </div>
+                            <% }); %>
+                        </div>
+                        <button class="slider-btn next" onclick="changeSlide(1)">&#10095;</button>
+                    </div>
+                <% } %>
+
+                <!-- Содержимое поста -->
+                <div class="post-content">
+                    <%= post.content %>
+                </div>
+
+                <div class="post-footer">
+                    <!-- <div class="post-likes">
+                        <button class="like-btn">
+                            <i class="fas fa-heart"></i>
+                            <span><%= post.likes %></span>
+                        </button>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переменные для слайдера
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            if (index >= slides.length) currentSlide = 0;
+            else if (index < 0) currentSlide = slides.length - 1;
+            else currentSlide = index;
+
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === currentSlide) slide.classList.add('active');
+            });
+        }
+
+        function changeSlide(step) {
+            showSlide(currentSlide + step);
+        }
+
+        // Обработка событий клавиатуры
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                changeSlide(1); // Вперёд
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1); // Назад
+            }
+        });
+
+        // Инициализация слайда
+        document.addEventListener('DOMContentLoaded', () => showSlide(currentSlide));
+    </script>
+</body>
+</html>
