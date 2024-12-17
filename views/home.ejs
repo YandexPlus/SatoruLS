@@ -76,6 +76,11 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Обрезка текста с многоточием */
+        max-width: 100%;
+        display: block;
     }
 
     .post-text {
@@ -276,4 +281,15 @@
             }
         }
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const postTitles = document.querySelectorAll('.post-title');
+        
+        postTitles.forEach(title => {
+            const maxLength = 80; // Максимальная длина заголовка
+            if (title.textContent.length > maxLength) {
+                title.textContent = title.textContent.substring(0, maxLength) + '...';
+            }
+        });
+    });
 </script>
